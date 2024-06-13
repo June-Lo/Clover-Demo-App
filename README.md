@@ -33,3 +33,5 @@ https://docs.clover.com/reference/createcharge
 ### Other Important Links
 https://docs.clover.com/reference/api-reference-overview
 https://docs.clover.com/docs/app-settings#add-web-app-settings
+https://docs.clover.com/reference/create-card-token
+https://docs.clover.com/reference/getapikey
