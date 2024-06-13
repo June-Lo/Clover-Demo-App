@@ -25,6 +25,11 @@ A merchant who wants access to your app, but has not logged in to their Clover m
 
 When a merchant logs in to their Clover merchant account, they become an authorized merchant. The Clover server redirects this merchant to your app with the URL https://www.example.com/oauth_callback?merchant_id={MERCHANT_ID}&client_id={APP_ID}&code={AUTHORIZATION_CODE}.
 
+### Creating a Charge
+https://docs.clover.com/docs/ecommerce-integration-types
+https://docs.clover.com/docs/ecommerce-generating-a-card-token
+https://docs.clover.com/reference/createcharge
 
+### Other Important Links
 https://docs.clover.com/reference/api-reference-overview
 https://docs.clover.com/docs/app-settings#add-web-app-settings
