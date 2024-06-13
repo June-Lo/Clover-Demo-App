@@ -14,7 +14,6 @@ function App() {
       window.location.href = 'http://localhost:3000/';
     }
 
-
     queryParams = new URLSearchParams(window.location.search)
     authCode = queryParams.get('auth_code');
 
@@ -27,17 +26,7 @@ function App() {
     const expiryDate = event.target.expiryDate.value;
     const cvv = event.target.cvv.value;
 
-    // Generate PAKMS key by making GET request to https://scl-sandbox.dev.clover.com/pakms/apikey with Headers: Authorization
-    // Add Access-Control-Allow-Origin header to allow cross-origin requests
-    const headers = { accept: 'application/json', Authorization: `Bearer ${authCode}`, 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Credentials': 'true' };
-    fetch('https://scl-sandbox.dev.clover.com/pakms/apikey', {
-      headers
-    }).then((response) => {
-      return response.json();
-    }).then((data) => {
-      console.log(data);
-    });
-
+    
     console.log("Credit Card Number:", creditCardNumber);
     console.log("Expiry Date:", expiryDate);
     console.log("CVV:", cvv);
