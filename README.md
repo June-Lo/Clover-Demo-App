@@ -27,3 +27,4 @@ When a merchant logs in to their Clover merchant account, they become an authori
 
 
 https://docs.clover.com/reference/api-reference-overview
+https://docs.clover.com/docs/app-settings#add-web-app-settings
