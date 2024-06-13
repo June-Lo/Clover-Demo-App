@@ -58,7 +58,6 @@ app.get('/callback', (req, res) => {
 
 
 app.get('/generatePAKMSKey', (req, res) => {
-    const authCode = req.query.auth_code;
     const headers = { accept: 'application/json', Authorization: `Bearer ${authCode}`}
     fetch('https://scl-sandbox.dev.clover.com/pakms/apikey', {
         headers
