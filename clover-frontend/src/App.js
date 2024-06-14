@@ -19,14 +19,13 @@ function App() {
       window.location.href = 'http://localhost:3000/';
     }
 
-    // Assuming this code runs in a browser environment
+    // Parse the query parameters from the URL
     queryParams = new URLSearchParams(window.location.search);
     authCode = queryParams.get('auth_code');
     merchantID = queryParams.get('merchant_id');
     // Correctly create a new instance of URLSearchParams to parse the hash fragment
     accessToken = new URLSearchParams(window.location.hash.substring(1)).get('access_token');
     clientID = queryParams.get('client_id');
-    console.log('accessToken:', accessToken);
   }, []);
 
   const handleSubmit = (event) => {
