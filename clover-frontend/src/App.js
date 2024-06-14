@@ -6,20 +6,27 @@ function App() {
   let clientID = queryParams.get('client_id');
   let merchantID = queryParams.get('merchant_id');
   let authCode = queryParams.get('auth_code');
-  let accessToken = queryParams.get('access_token');
+  let accessToken;
+  let cardToken;
+
+  const merchantSID = process.env.JUNEMERC_ID;
+  const ecommAPIPublicKey = process.env.CLOVER_ECOMMAPIPUBLIC;
+  const ecommercePrivateAPIKey = process.env.CLOVER_ECOMMAPIPRIVATE;
 
   useEffect(() => {
-    console.log("Client ID:", clientID);
     //Redirect user to Clover login page if any of the parameters are empty
-    if (authCode === null || accessToken === null || clientID === null || merchantID === null) {
+    if (accessToken === null) {
       window.location.href = 'http://localhost:3000/';
     }
 
-    queryParams = new URLSearchParams(window.location.search)
+    // Assuming this code runs in a browser environment
+    queryParams = new URLSearchParams(window.location.search);
     authCode = queryParams.get('auth_code');
     merchantID = queryParams.get('merchant_id');
-    accessToken = queryParams.get('access_token');
+    // Correctly create a new instance of URLSearchParams to parse the hash fragment
+    accessToken = new URLSearchParams(window.location.hash.substring(1)).get('access_token');
     clientID = queryParams.get('client_id');
+    console.log('accessToken:', accessToken);
   }, []);
 
   const handleSubmit = (event) => {
@@ -28,11 +35,34 @@ function App() {
     const expiryDate = event.target.expiryDate.value;
     const cvv = event.target.cvv.value;
 
-    
-    console.log("Credit Card Number:", creditCardNumber);
-    console.log("Expiry Date:", expiryDate);
-    console.log("CVV:", cvv);
+    const cardData = {
+      card: {
+        brand: 'VISA',
+        number: creditCardNumber,
+        exp_month: expiryDate.split('/')[0],
+        exp_year: expiryDate.split('/')[1],
+        cvv: cvv,
+        last4: creditCardNumber.slice(-4),
+        first6: creditCardNumber.slice(0, 6)
+      }
+    }
+
+    fetch('http://localhost:3000/charge', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(cardData),
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Success:', data);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
   };
+
 
   return (
     <div className="App">
