@@ -35,3 +35,7 @@ https://docs.clover.com/reference/api-reference-overview
 https://docs.clover.com/docs/app-settings#add-web-app-settings
 https://docs.clover.com/reference/create-card-token
 https://docs.clover.com/reference/getapikey
+
+### Bad documentation
+https://community.clover.com/questions/46643/401-attempting-to-generate-a-pakms-key.html
+https://docs.clover.com/docs/401-unauthorized#:~:text=401%20Unauthorized%20indicates%20the%20request,credentials%20for%20the%20target%20resource
