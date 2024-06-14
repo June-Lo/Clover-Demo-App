@@ -30,23 +30,25 @@ When a merchant logs in to their Clover merchant account, they become an authori
 Default OAuth Response CODE  
 To create a charge, an Ecommerce API Token is needed.  
 After doing the OAuth, send ecommerce private key  
+```
 --request GET \
-     --url https://scl-sandbox.dev.clover.com/pakms/apikey \
-     --header 'accept: application/json' \
-     --header 'authorization: Bearer <ecommerce_private_key>'  
+    --url https://scl-sandbox.dev.clover.com/pakms/apikey \
+    --header 'accept: application/json' \
+    --header 'authorization: Bearer <ecommerce_private_key>'  
+```
 Which will return the ecommerce public key. Or skip sending the ecommerce private key and use public key as PAKMS for Card Tokenization  
 
 OR  
 
 Default OAuth Response Token  
 After doing the OAuth, send access_token received to  
+```
 --request GET \
-     --url https://scl-sandbox.dev.clover.com/pakms/apikey \
-     --header 'accept: application/json' \
-     --header 'authorization: Bearer <access_token>'  
+    --url https://scl-sandbox.dev.clover.com/pakms/apikey \
+    --header 'accept: application/json' \
+    --header 'authorization: Bearer <access_token>'  
+```
 Which will send a response with "apiAccessKey", this is PAKMS Key for Card Tokenization  
-
-
 https://docs.clover.com/docs/ecommerce-integration-types  
 https://docs.clover.com/docs/ecommerce-generating-a-card-token  
 https://docs.clover.com/reference/createcharge  
@@ -54,7 +56,8 @@ https://docs.clover.com/reference/createcharge
 ### Card Tokenization
 https://docs.clover.com/docs/test-card-numbers  
 
-Create a card token which is done at  
+Create a card token which is done at
+```  
 curl --request POST   
      --url https://token-sandbox.dev.clover.com/v1/tokens   
      --header 'accept: application/json'   
@@ -72,9 +75,27 @@ curl --request POST
     "first6": "424242"  
   }  
 }  
-'  
-### Make a charge
+```
 
+### Make a charge
+```
+curl --request POST \
+     --url https://scl-sandbox.dev.clover.com/v1/charges \
+     --header 'accept: application/json' \
+     --header 'authorization: Bearer <ecommerce_private_key>' \
+     --header 'content-type: application/json' \
+     --data '
+{
+  "ecomind": "ecom",
+  "metadata": {
+    "existingDebtIndicator": false
+  },
+  "amount": 1358,
+  "currency": "usd",
+  "source": "<card_tokenization>"
+}
+'
+```
 ### Other Important Links
 https://docs.clover.com/reference/api-reference-overview  
 https://docs.clover.com/docs/app-settings#add-web-app-settings  
