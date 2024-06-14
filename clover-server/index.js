@@ -37,7 +37,6 @@ app.get('/callback', (req, res) => {
         accessToken
     };
     // res.json(data);
-    console.log(data)
     res.redirect(`http://localhost:3001/?auth_code=${authCode}&employee_id=${employeeID}&merchant_id=${merchantID}`);
 });
 
