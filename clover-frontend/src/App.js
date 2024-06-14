@@ -17,8 +17,9 @@ function App() {
 
     queryParams = new URLSearchParams(window.location.search)
     authCode = queryParams.get('auth_code');
-
-    console.log(clientID)
+    merchantID = queryParams.get('merchant_id');
+    accessToken = queryParams.get('access_token');
+    clientID = queryParams.get('client_id');
   }, []);
 
   const handleSubmit = (event) => {
