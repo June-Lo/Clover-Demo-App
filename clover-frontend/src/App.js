@@ -6,11 +6,12 @@ function App() {
   let clientID = queryParams.get('client_id');
   let merchantID = queryParams.get('merchant_id');
   let authCode = queryParams.get('auth_code');
+  let accessToken = queryParams.get('access_token');
 
   useEffect(() => {
     console.log("Client ID:", clientID);
     //Redirect user to Clover login page if any of the parameters are empty
-    if (authCode === null) {
+    if (authCode === null || accessToken === null || clientID === null || merchantID === null) {
       window.location.href = 'http://localhost:3000/';
     }
 
