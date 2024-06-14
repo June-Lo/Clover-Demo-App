@@ -5,6 +5,7 @@ import('node-fetch');
 require('dotenv').config({ path: '../.env' });
 
 const app = express();
+app.use(express.json());
 const port = 3000;
 const portProxy = 3001;
 app.use(cors());
@@ -25,58 +26,46 @@ app.get('/', (req, res) => {
     res.redirect(`https://${process.env.CLOVER_SERVER}/oauth/authorize?client_id=${clientID}&merchant_id=${merchantID}&redirect_uri=http://localhost:${port}/callback`);
 });
 
-// app.get('/callback', (req, res) => {
-//     authCode = req.query.code;
-//     const employeeID = req.query.employee_id;
-//     const merchantID = req.query.merchant_id;
-//     const data = {
-//         authCode,
-//         employeeID,
-//         merchantID
-//     };
-//     // res.json(data);
-//     res.redirect(`http://localhost:3001/?auth_code=${authCode}&employee_id=${employeeID}&merchant_id=${merchantID}`);
-// });
-
-//Testing
 app.get('/callback', (req, res) => {
     authCode = req.query.code;
     employeeID = req.query.employee_id;
     accessToken = req.query.access_token;
-
     const data = {
         authCode,
         employeeID,
         merchantID,
         accessToken
     };
-    res.json(data);
+    // res.json(data);
+    console.log(data)
+    res.redirect(`http://localhost:3001/?auth_code=${authCode}&employee_id=${employeeID}&merchant_id=${merchantID}`);
 });
 
-app.get('/generatePAKMSKey', (req, res) => {
-    const headers = { accept: 'application/json', Authorization: `Bearer ${authCode}` }
-    fetch('https://scl-sandbox.dev.clover.com/pakms/apikey', {
-        headers
-    }).then((response) => {
-        return response.json();
-    }).then((data) => {
-        res.json(data);
-    });
-})
+// app.get('/generatePAKMSKey', (req, res) => {
+//     const headers = { accept: 'application/json', Authorization: `Bearer ${authCode}` }
+//     fetch('https://scl-sandbox.dev.clover.com/pakms/apikey', {
+//         headers
+//     }).then((response) => {
+//         return response.json();
+//     }).then((data) => {
+//         res.json(data);
+//     });
+// })
 
-app.get('/charge', (req, res) => {
+app.post('/charge', (req, res) => {
+    const { brand, number, exp_month, exp_year, cvv, last4, first6 } = req.body.card;
     const cardData = {
         card: {
-            brand: 'VISA',
-            number: '4242424242424242',
-            exp_month: '03',
-            exp_year: '2027',
-            cvv: '123',
-            last4: '4242',
-            first6: '424242'
+            brand,
+            number,
+            exp_month,
+            exp_year,
+            cvv,
+            last4,
+            first6
         }
     };
-
+    console.log(cardData)
     fetch('https://token-sandbox.dev.clover.com/v1/tokens', {
         method: 'POST',
         headers: {
