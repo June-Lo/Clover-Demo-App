@@ -17,50 +17,28 @@ let merchantID = process.env.JUNE_MID;
 const merchantSID = process.env.JUNEMERC_ID;
 const ecommAPIPublicKey = process.env.CLOVER_ECOMMAPIPUBLIC;
 const ecommercePrivateAPIKey = process.env.CLOVER_ECOMMAPIPRIVATE;
-// let TA_PUBLIC_KEY_DEV;
-let authCode;
-let employeeID;
-let accessToken;
+
 let cardToken;
 
 app.get('/', (req, res) => {
     res.redirect(`https://${process.env.CLOVER_SERVER}/oauth/v2/authorize?client_id=${clientID}&merchant_id=${merchantID}&redirect_uri=http://localhost:${portProxy}/callback`);
 });
 
-app.get('/callback', (req, res) => {
-    // Get the URI and log it
-    console.log(req.query);
-    authCode = req.query.code;
-    employeeID = req.query.employee_id;
-    merchantID = req.query.merchant_id;
-    clientID = req.query.client_id;
-    // accessToken = req.query.access_token;
-    const data = {
-        authCode,
-        employeeID,
-        merchantID,
-        clientID
-        // accessToken
-    };
-    res.redirect(`http://localhost:3001/merchant_id=${merchantID}&employee_id=${employeeID}&client_id=${clientID}&code=${authCode}`);
-});
-
-// Using OAuth Auth Code, do not need to get PAKMSKey as it will be Ecommerce Public API Key
-// app.get('/generatePAKMSKey', (req, res) => {
-//     const headersReq = req.headers;
-//     const headers = { Accept: headersReq.accept, Authorization: headersReq.authorization }
-//     console.log(headers);
-//     fetch('https://scl-sandbox.dev.clover.com/pakms/apikey', {
-//         headers
-//     }).then((response) => {
-//         return response.json();
-//     }).then((data) => {
-//         res.json(data);
-//     }).catch((error) => {
-//         console.error(error);
-//         res.status(500).json({ error: 'An error occurred' });
-//     });
-// })
+app.get('/generatePAKMSKey', (req, res) => {
+    const headersReq = req.headers;
+    const headers = { Accept: headersReq.accept, Authorization: headersReq.authorization }
+    console.log(headers);
+    fetch('https://scl-sandbox.dev.clover.com/pakms/apikey', {
+        headers
+    }).then((response) => {
+        return response.json();
+    }).then((data) => {
+        res.json(data);
+    }).catch((error) => {
+        console.error(error);
+        res.status(500).json({ error: 'An error occurred' });
+    });
+})
 
 app.post('/token', (req, res) => {
     fetch(`https://${process.env.CLOVER_SERVER}/oauth/v2/token?no_refresh_token=true`, {
@@ -89,9 +67,10 @@ app.post('/token', (req, res) => {
 
 app.post('/charge', (req, res) => {
     const { brand, number, exp_month, exp_year, cvv, last4, first6 } = req.body.card;
-    // const apiAccessKey = req.body.PAKMSKey;
+    const apiAccessKey = req.body.PAKMSKey;
     const accessToken = req.body.accessToken;
-    // console.log(req.body.PAKMSKey)
+    console.log(accessToken);
+    const authCode = req.body.authCode;
     const cardData = {
         card: {
             number,
@@ -107,7 +86,7 @@ app.post('/charge', (req, res) => {
         method: 'POST',
         headers: {
             'accept': 'application/json',
-            'apikey': accessToken,
+            'apikey': ecommAPIPublicKey,
             'content-type': 'application/json'
         },
         body: JSON.stringify(cardData)
@@ -122,7 +101,7 @@ app.post('/charge', (req, res) => {
                 method: 'POST',
                 headers: {
                     'accept': 'application/json',
-                    'authorization': `Bearer ${ecommercePrivateAPIKey}`,
+                    'authorization': `Bearer ${eccommercePrivateAPIKey}`,
                     'content-type': 'application/json'
                 },
                 body: JSON.stringify({

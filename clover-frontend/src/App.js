@@ -4,13 +4,11 @@ import './App.css';
 
 function App() {
 
-  // const hashParams = new URLSearchParams(window.location.hash.substring(1));
-
   const [clientID, setClientID] = useState('');
   const [merchantID, setMerchantID] = useState('');
   const [authCode, setAuthCode] = useState('');
   const [accessToken, setAccessToken] = useState('');
-  // const [PAKMSKey, setPAKMSKey] = useState(null);
+  const [PAKMSKey, setPAKMSKey] = useState('');
   // let cardToken;
 
   const merchantSID = process.env.REACT_APP_JUNEMERC_ID;
@@ -34,7 +32,11 @@ function App() {
       fetchToken();
     }
 
-  }, [accessToken, accessToken])
+    if (accessToken && !PAKMSKey) {
+      fetchPAKMSKey();
+    }
+
+  }, [accessToken, accessToken, PAKMSKey])
 
   const fetchToken = async () => {
     console.log(authCode, clientID, clientSecret);
@@ -60,26 +62,26 @@ function App() {
 
   // Using OAuth Auth Code, do not need to get PAKMSKey as it will be Ecommerce Public API Key
   // useEffect(() => {
-  //   fetchPAKMSKey();
+
   //   console.log(PAKMSKey);
   // }, [PAKMSKey]);
 
-  // const fetchPAKMSKey = async () => {
-  //   try {
-  //     const response = await fetch('http://localhost:3000/generatePAKMSKey', {
-  //       headers: {
-  //         Accept: 'application/json',
-  //         Authorization: `Bearer ${accessToken}`,
-  //       }
-  //     });
-  //     const data = await response.json();
-  //     setPAKMSKey(data.apiAccessKey);
+  const fetchPAKMSKey = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/generatePAKMSKey', {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        }
+      });
+      const data = await response.json();
+      setPAKMSKey(data.apiAccessKey);
 
-  //   }
-  //   catch (error) {
-  //     console.error('Error:', error);
-  //   }
-  // }
+    }
+    catch (error) {
+      console.error('Error:', error);
+    }
+  }
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -98,7 +100,9 @@ function App() {
         last4: creditCardNumber.slice(-4),
         first6: creditCardNumber.slice(0, 6),
       },
-      accessToken
+      accessToken,
+      authCode,
+      PAKMSKey
     };
 
     try {
