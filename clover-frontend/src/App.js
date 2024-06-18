@@ -18,32 +18,33 @@ function App() {
 
 
   useMemo(() => {
-    if (!accessToken) {
+    if (!authCode) {
       window.location.href = 'http://localhost:3000/';
     }
   });
 
-  useEffect(() => {
-    fetchPAKMSKey();
-    console.log(PAKMSKey);
-  }, [PAKMSKey]);
+  // Using OAuth Auth Code, do not need to get PAKMSKey as it will be Ecommerce Public API Key
+  // useEffect(() => {
+  //   fetchPAKMSKey();
+  //   console.log(PAKMSKey);
+  // }, [PAKMSKey]);
 
-  const fetchPAKMSKey = async () => {
-    try {
-      const response = await fetch('http://localhost:3000/generatePAKMSKey', {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        }
-      });
-      const data = await response.json();
-      setPAKMSKey(data.apiAccessKey);
+  // const fetchPAKMSKey = async () => {
+  //   try {
+  //     const response = await fetch('http://localhost:3000/generatePAKMSKey', {
+  //       headers: {
+  //         Accept: 'application/json',
+  //         Authorization: `Bearer ${accessToken}`,
+  //       }
+  //     });
+  //     const data = await response.json();
+  //     setPAKMSKey(data.apiAccessKey);
 
-    }
-    catch (error) {
-      console.error('Error:', error);
-    }
-  }
+  //   }
+  //   catch (error) {
+  //     console.error('Error:', error);
+  //   }
+  // }
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -62,8 +63,8 @@ function App() {
         last4: creditCardNumber.slice(-4),
         first6: creditCardNumber.slice(0, 6),
       },
-      PAKMSKey,
-      accessToken
+      // PAKMSKey,
+      // accessToken
     };
 
     try {

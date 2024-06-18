@@ -28,7 +28,7 @@ https://www.example.com/oauth_callback?merchant_id={MERCHANT_ID}&client_id={APP_
 
 ## Payment
 ### PAKMS Key
-Default OAuth Response CODE  
+**Default OAuth Response CODE**  
 To create a charge, an Ecommerce API Token is needed.  
 After doing the OAuth, send ecommerce private key  
 ```
@@ -41,7 +41,7 @@ Which will return the ecommerce public key. Or skip sending the ecommerce privat
 
 OR  
 
-Default OAuth Response Token  
+**Default OAuth Response Token**  
 After doing the OAuth, send access_token received to  
 ```
 --request GET \
