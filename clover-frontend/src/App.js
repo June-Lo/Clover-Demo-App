@@ -51,8 +51,7 @@ function App() {
         }),
       });
       const data = await response.json();
-      await setAccessToken(data.access_token);
-      await console.log(`This is the access Token received ${accessToken}`);
+      setAccessToken(data.access_token);
     }
     catch (error) {
       console.error('Error:', error);
@@ -99,8 +98,7 @@ function App() {
         last4: creditCardNumber.slice(-4),
         first6: creditCardNumber.slice(0, 6),
       },
-      // PAKMSKey,
-      // accessToken
+      accessToken
     };
 
     try {
