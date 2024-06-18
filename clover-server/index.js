@@ -63,11 +63,6 @@ app.get('/callback', (req, res) => {
 // })
 
 app.post('/token', (req, res) => {
-    console.log({
-        'client_id': req.body.client_id,
-        'client_secret': req.body.client_secret,
-        'code': req.body.code
-    })
     fetch(`https://${process.env.CLOVER_SERVER}/oauth/v2/token?no_refresh_token=true`, {
         method: 'POST',
         headers: {
@@ -95,7 +90,7 @@ app.post('/token', (req, res) => {
 app.post('/charge', (req, res) => {
     const { brand, number, exp_month, exp_year, cvv, last4, first6 } = req.body.card;
     // const apiAccessKey = req.body.PAKMSKey;
-    // const accessToken = req.body.accessToken;
+    const accessToken = req.body.accessToken;
     // console.log(req.body.PAKMSKey)
     const cardData = {
         card: {
@@ -112,7 +107,7 @@ app.post('/charge', (req, res) => {
         method: 'POST',
         headers: {
             'accept': 'application/json',
-            'apikey': ecommAPIPublicKey,
+            'apikey': accessToken,
             'content-type': 'application/json'
         },
         body: JSON.stringify(cardData)
