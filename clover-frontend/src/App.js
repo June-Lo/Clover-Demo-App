@@ -1,27 +1,63 @@
 import { useEffect, useState, useMemo } from 'react';
+
 import './App.css';
 
 function App() {
-  const queryParams = new URLSearchParams(window.location.search);
-  const hashParams = new URLSearchParams(window.location.hash.substring(1));
 
-  const [clientID, setClientID] = useState(queryParams.get('client_id'));
-  const [merchantID, setMerchantID] = useState(queryParams.get('merchant_id'));
-  const [authCode, setAuthCode] = useState(queryParams.get('auth_code'));
-  const [accessToken, setAccessToken] = useState(hashParams.get('access_token'));
-  const [PAKMSKey, setPAKMSKey] = useState(null);
-  let cardToken;
+  // const hashParams = new URLSearchParams(window.location.hash.substring(1));
+
+  const [clientID, setClientID] = useState('');
+  const [merchantID, setMerchantID] = useState('');
+  const [authCode, setAuthCode] = useState('');
+  const [accessToken, setAccessToken] = useState('');
+  // const [PAKMSKey, setPAKMSKey] = useState(null);
+  // let cardToken;
 
   const merchantSID = process.env.REACT_APP_JUNEMERC_ID;
   const ecommAPIPublicKey = process.env.REACT_APP_CLOVER_ECOMMAPIPUBLIC;
   const ecommercePrivateAPIKey = process.env.REACT_APP_CLOVER_ECOMMAPIPRIVATE;
-
+  const clientSecret = process.env.REACT_APP_APP_SECRET;
 
   useMemo(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    setAuthCode(queryParams.get('code'));
+    setClientID(queryParams.get('client_id'));
+    setMerchantID(queryParams.get('merchant_id'));
+  }, [authCode]);
+
+  useEffect(() => {
     if (!authCode) {
       window.location.href = 'http://localhost:3000/';
     }
-  });
+
+    if (!accessToken && authCode) {
+      fetchToken();
+    }
+
+  }, [accessToken, accessToken])
+
+  const fetchToken = async () => {
+    console.log(authCode, clientID, clientSecret);
+    try {
+      const response = await fetch('http://localhost:3000/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          'client_id': clientID,
+          'client_secret': clientSecret,
+          'code': authCode,
+        }),
+      });
+      const data = await response.json();
+      await setAccessToken(data.access_token);
+      await console.log(`This is the access Token received ${accessToken}`);
+    }
+    catch (error) {
+      console.error('Error:', error);
+    }
+  }
 
   // Using OAuth Auth Code, do not need to get PAKMSKey as it will be Ecommerce Public API Key
   // useEffect(() => {
