@@ -1,84 +1,103 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import './App.css';
 
 function App() {
-  let queryParams = new URLSearchParams(window.location.search)
-  let clientID = queryParams.get('client_id');
-  let merchantID = queryParams.get('merchant_id');
-  let authCode = queryParams.get('auth_code');
-  let accessToken;
+  const queryParams = new URLSearchParams(window.location.search);
+  const hashParams = new URLSearchParams(window.location.hash.substring(1));
+
+  const [clientID, setClientID] = useState(queryParams.get('client_id'));
+  const [merchantID, setMerchantID] = useState(queryParams.get('merchant_id'));
+  const [authCode, setAuthCode] = useState(queryParams.get('auth_code'));
+  const [accessToken, setAccessToken] = useState(hashParams.get('access_token'));
+  const [PAKMSKey, setPAKMSKey] = useState(null);
   let cardToken;
 
-  const merchantSID = process.env.JUNEMERC_ID;
-  const ecommAPIPublicKey = process.env.CLOVER_ECOMMAPIPUBLIC;
-  const ecommercePrivateAPIKey = process.env.CLOVER_ECOMMAPIPRIVATE;
+  const merchantSID = process.env.REACT_APP_JUNEMERC_ID;
+  const ecommAPIPublicKey = process.env.REACT_APP_CLOVER_ECOMMAPIPUBLIC;
+  const ecommercePrivateAPIKey = process.env.REACT_APP_CLOVER_ECOMMAPIPRIVATE;
 
-  useEffect(() => {
-    //Redirect user to Clover login page if any of the parameters are empty
-    if (accessToken === null) {
+
+  useMemo(() => {
+    if (!accessToken) {
       window.location.href = 'http://localhost:3000/';
     }
+  });
 
-    // Parse the query parameters from the URL
-    queryParams = new URLSearchParams(window.location.search);
-    authCode = queryParams.get('auth_code');
-    merchantID = queryParams.get('merchant_id');
-    // Correctly create a new instance of URLSearchParams to parse the hash fragment
-    accessToken = new URLSearchParams(window.location.hash.substring(1)).get('access_token');
-    clientID = queryParams.get('client_id');
-  }, []);
+  useEffect(() => {
+    fetchPAKMSKey();
+    console.log(PAKMSKey);
+  }, [PAKMSKey]);
 
-  const handleSubmit = (event) => {
+  const fetchPAKMSKey = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/generatePAKMSKey', {
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        }
+      });
+      const data = await response.json();
+      setPAKMSKey(data.apiAccessKey);
+
+    }
+    catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const creditCardNumber = event.target.creditCardNumber.value;
     const expiryDate = event.target.expiryDate.value;
     const cvv = event.target.cvv.value;
+    const [expMonth, expYear] = expiryDate.split('/');
 
-    const cardData = {
+    const body = {
       card: {
         brand: 'VISA',
         number: creditCardNumber,
-        exp_month: expiryDate.split('/')[0],
-        exp_year: expiryDate.split('/')[1],
-        cvv: cvv,
+        exp_month: expMonth,
+        exp_year: expYear,
+        cvv,
         last4: creditCardNumber.slice(-4),
-        first6: creditCardNumber.slice(0, 6)
-      }
-    }
-
-    fetch('http://localhost:3000/charge', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+        first6: creditCardNumber.slice(0, 6),
       },
-      body: JSON.stringify(cardData),
-    })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Success:', data);
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
-  };
+      PAKMSKey,
+      accessToken
+    };
 
+    try {
+      const response = await fetch('http://localhost:3000/charge', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+      const data = await response.json();
+      console.log('Success:', data);
+    }
+    catch (error) {
+      console.error('Error:', error);
+    }
+  }
 
   return (
     <div className="App">
       <form onSubmit={handleSubmit}>
         <label>
           Credit Card Number:
-          <input type="text" name="creditCardNumber" />
+          <input type="text" name="creditCardNumber" required />
         </label>
         <br />
         <label>
           Expiry Date:
-          <input type="text" name="expiryDate" />
+          <input type="text" name="expiryDate" required pattern="\d{2}/\d{2}" placeholder="MM/YY" />
         </label>
         <br />
         <label>
           CVV:
-          <input type="text" name="cvv" />
+          <input type="text" name="cvv" required pattern="\d{3,4}" />
         </label>
         <br />
         <button type="submit">Submit</button>

@@ -1,6 +1,7 @@
 const express = require('express');
 const { redirect } = require('react-router-dom');
 cors = require('cors');
+const crypto = require('crypto');
 import('node-fetch');
 require('dotenv').config({ path: '../.env' });
 
@@ -16,11 +17,11 @@ const merchantID = process.env.JUNE_MID;
 const merchantSID = process.env.JUNEMERC_ID;
 const ecommAPIPublicKey = process.env.CLOVER_ECOMMAPIPUBLIC;
 const ecommercePrivateAPIKey = process.env.CLOVER_ECOMMAPIPRIVATE;
+let TA_PUBLIC_KEY_DEV;
 let authCode;
 let employeeID;
 let accessToken;
 let cardToken;
-
 
 app.get('/', (req, res) => {
     res.redirect(`https://${process.env.CLOVER_SERVER}/oauth/authorize?client_id=${clientID}&merchant_id=${merchantID}&redirect_uri=http://localhost:${port}/callback`);
@@ -36,27 +37,52 @@ app.get('/callback', (req, res) => {
         merchantID,
         accessToken
     };
-    // res.json(data);
     res.redirect(`http://localhost:3001/?auth_code=${authCode}&employee_id=${employeeID}&merchant_id=${merchantID}`);
 });
 
-// app.get('/generatePAKMSKey', (req, res) => {
-//     const headers = { accept: 'application/json', Authorization: `Bearer ${authCode}` }
-//     fetch('https://scl-sandbox.dev.clover.com/pakms/apikey', {
-//         headers
-//     }).then((response) => {
-//         return response.json();
-//     }).then((data) => {
-//         res.json(data);
-//     });
-// })
+app.get('/generatePAKMSKey', (req, res) => {
+    const headersReq = req.headers;
+    const headers = { Accept: headersReq.accept, Authorization: headersReq.authorization }
+    console.log(headers);
+    fetch('https://scl-sandbox.dev.clover.com/pakms/apikey', {
+        headers
+    }).then((response) => {
+        return response.json();
+    }).then((data) => {
+        res.json(data);
+    }).catch((error) => {
+        console.error(error);
+        res.status(500).json({ error: 'An error occurred' });
+    });
+})
 
 app.post('/charge', (req, res) => {
+    fetch('https://checkout.clover.com/assets/keys.json', {
+        method: 'GET',
+        headers: {
+            'accept': 'application/json',
+            'content-type': 'application/json'
+        }
+    })
+        .then((response) => {
+            return response.json();
+        })
+        .then((data) => {
+            TA_PUBLIC_KEY_DEV = data.TA_PUBLIC_KEY_DEV;
+        })
+        .catch((error) => {
+            console.error(error);
+            res.status(500).json({ error: 'An error occurred' });
+        });
+    console.log(req.body.PAKMSKey)
     const { brand, number, exp_month, exp_year, cvv, last4, first6 } = req.body.card;
+    const apiAccessKey = req.body.PAKMSKey;
+    const accessToken = req.body.accessToken;
+    console.log(req.body.PAKMSKey)
     const cardData = {
         card: {
-            brand,
             number,
+            brand,
             exp_month,
             exp_year,
             cvv,
@@ -64,21 +90,22 @@ app.post('/charge', (req, res) => {
             first6
         }
     };
-    console.log(cardData)
-    fetch('https://token-sandbox.dev.clover.com/v1/tokens', {
-        method: 'POST',
-        headers: {
-            'accept': 'application/json',
-            'apikey': ecommAPIPublicKey,
-            'content-type': 'application/json'
-        },
-        body: JSON.stringify(cardData)
-    })
+    console.log(req.body.PAKMSKey)
+fetch('https://token-sandbox.dev.clover.com/v1/tokens', {
+    method: 'POST',
+    headers: {
+        'accept': 'application/json',
+        'apikey': apiAccessKey,
+        'content-type': 'application/json'
+    },
+    body: JSON.stringify(cardData)
+})
     .then((response) => {
         return response.json();
     })
     .then((data) => {
         cardToken = data.id;
+        console.log(cardToken);
         fetch('https://scl-sandbox.dev.clover.com/v1/charges', {
             method: 'POST',
             headers: {
@@ -92,21 +119,21 @@ app.post('/charge', (req, res) => {
                     "existingDebtIndicator": false
                 },
                 "amount": 1358,
-                "tip_amount" : 200,
+                "tip_amount": 200,
                 "currency": "usd",
                 "source": cardToken
             })
         })
-        .then((response) => {
-            return response.json();
-        })
-        .then((data) => {
-            res.json(data);
-        })
-        .catch((error) => {
-            console.error(error);
-            res.status(500).json({ error: 'An error occurred' });
-        });
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                res.json(data);
+            })
+            .catch((error) => {
+                console.error(error);
+                res.status(500).json({ error: 'An error occurred' });
+            });
     })
     .catch((error) => {
         console.error(error);
