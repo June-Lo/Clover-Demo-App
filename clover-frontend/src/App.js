@@ -9,7 +9,6 @@ function App() {
   const [authCode, setAuthCode] = useState('');
   const [accessToken, setAccessToken] = useState('');
   const [PAKMSKey, setPAKMSKey] = useState('');
-  // let cardToken;
 
   const merchantSID = process.env.REACT_APP_JUNEMERC_ID;
   const ecommAPIPublicKey = process.env.REACT_APP_CLOVER_ECOMMAPIPUBLIC;
@@ -32,9 +31,9 @@ function App() {
       fetchToken();
     }
 
-    if (accessToken && !PAKMSKey) {
-      fetchPAKMSKey();
-    }
+    // if (accessToken && !PAKMSKey) {
+    //   fetchPAKMSKey();
+    // }
 
   }, [accessToken, accessToken, PAKMSKey])
 

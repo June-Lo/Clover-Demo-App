@@ -21,7 +21,7 @@ const ecommercePrivateAPIKey = process.env.CLOVER_ECOMMAPIPRIVATE;
 let cardToken;
 
 app.get('/', (req, res) => {
-    res.redirect(`https://${process.env.CLOVER_SERVER}/oauth/v2/authorize?client_id=${clientID}&merchant_id=${merchantID}&redirect_uri=http://localhost:${portProxy}/callback`);
+    res.redirect(`https://${process.env.CLOVER_SERVER}/oauth/authorize?client_id=${clientID}&merchant_id=${merchantID}&redirect_uri=http://localhost:${portProxy}/callback`);
 });
 
 app.get('/generatePAKMSKey', (req, res) => {
@@ -41,16 +41,10 @@ app.get('/generatePAKMSKey', (req, res) => {
 })
 
 app.post('/token', (req, res) => {
-    fetch(`https://${process.env.CLOVER_SERVER}/oauth/v2/token?no_refresh_token=true`, {
-        method: 'POST',
+    fetch(`https://${process.env.CLOVER_SERVER}/oauth/token?client_id=${req.body.client_id}&client_secret=${req.body.client_secret}&code=${req.body.code}`, {
         headers: {
             'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            'client_id': req.body.client_id,
-            'client_secret': req.body.client_secret,
-            'code': req.body.code
-        })
+        }
     })
         .then((response) => {
             return response.json();
