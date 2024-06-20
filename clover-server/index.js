@@ -7,14 +7,12 @@ require('dotenv').config({ path: '../.env' });
 
 const app = express();
 app.use(express.json());
-const port = 3000;
-const portProxy = 3001;
 app.use(cors());
 
-let clientID = process.env.APP_ID;
-const clientSecret = process.env.APP_SECRET;
-let merchantID = process.env.JUNE_MID;
-const merchantSID = process.env.JUNEMERC_ID;
+const port = 3000;
+const portProxy = 3001;
+const clientID = process.env.APP_ID;
+const merchantID = process.env.JUNE_MID;
 const ecommAPIPublicKey = process.env.CLOVER_ECOMMAPIPUBLIC;
 const ecommercePrivateAPIKey = process.env.CLOVER_ECOMMAPIPRIVATE;
 
@@ -70,9 +68,8 @@ app.post('/token', (req, res) => {
 
 app.post('/charge', (req, res) => {
     const { brand, number, exp_month, exp_year, cvv, last4, first6 } = req.body.card;
-    const apiAccessKey = req.body.PAKMSKey;
-    const accessToken = req.body.accessToken;
-    const authCode = req.body.authCode;
+    // Doing card tokenization through Ecommerce API
+    // const apiAccessKey = req.body.PAKMSKey;
     const cardData = {
         card: {
             number,
