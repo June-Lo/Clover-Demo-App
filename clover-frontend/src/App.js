@@ -1,5 +1,4 @@
 import { useEffect, useState, useMemo } from 'react';
-
 import './App.css';
 
 function App() {
@@ -10,7 +9,7 @@ function App() {
   const [accessToken, setAccessToken] = useState(localStorage.getItem('accessToken'));
   // Doing card tokenization through Ecommerce API
   // const [PAKMSKey, setPAKMSKey] = useState('');
-  
+
   const clientSecret = process.env.REACT_APP_APP_SECRET;
 
   useMemo(() => {
@@ -31,7 +30,6 @@ function App() {
   }, [])
 
   const fetchToken = async () => {
-    console.log(authCode, clientID, clientSecret);
     try {
       const response = await fetch('http://localhost:3000/token', {
         method: 'POST',
@@ -89,8 +87,6 @@ function App() {
         last4: creditCardNumber.slice(-4),
         first6: creditCardNumber.slice(0, 6),
       },
-      accessToken,
-      authCode,
       // Doing card tokenization through Ecommerce API
       // PAKMSKey
     };
