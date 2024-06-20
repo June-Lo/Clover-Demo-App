@@ -5,7 +5,7 @@ Create a Clover Dev Sandbox account
 https://sandbox.dev.clover.com/developer-home/create-account  
 Note down the (client_id)App ID and (client_secret)App Secret  
 
-After creating, create a test merchant account, make sure to set up Ecommerce Online Payments
+After creating, create a test merchant account, make sure to set up Ecommerce Online Payments  
 https://docs.clover.com/docs/merchant-id-and-api-token-for-development  
 https://docs.clover.com/docs/creating-a-sandbox-app  
 
@@ -13,7 +13,7 @@ After making a merchant account, you need to note down the merchant_id and creat
 
 You should now have client_id, client_secret, merchant_id, ecommerce_public_key, ecommerce_private_key
 
-A thing to keep note is that whenever checking the Ecommerce API Keys, the private key will be changed
+A thing to keep note is that whenever checking the Ecommerce API Tokens, the private key will be changed
 
 ## Getting Authorization
 First, user is redirected to, client_id must be passed as a query, merchant_id can be passed if you have a specific one to skip the merchant picking process  
@@ -52,7 +52,6 @@ This will return a PAKMS Key which can be used to create a card token for paymen
 
 Relevant Documentation:  
 https://docs.clover.com/docs/ecommerce-integration-types  
-
 https://docs.clover.com/reference/createcharge  
 
 ### Card Tokenization
@@ -86,7 +85,7 @@ Relevant Documentation:
 https://docs.clover.com/docs/ecommerce-generating-a-card-token  
 
 ### Make a charge
-https://docs.clover.com/reference/createcharge  
+You need your ecommerce_private_key and the card_token
 ```
 curl --request POST \
      --url https://scl-sandbox.dev.clover.com/v1/charges \
@@ -101,17 +100,15 @@ curl --request POST \
   },
   "amount": 1358,
   "currency": "usd",
-  "source": "<card_tokenization>"
+  "source": "<card_token>"
 }
 ```
 
+Relevant Documentation:  
+https://docs.clover.com/reference/createcharge  
 
-### Other Important Links
+### Other Links
 https://docs.clover.com/reference/api-reference-overview  
 https://docs.clover.com/docs/app-settings#add-web-app-settings  
 https://docs.clover.com/reference/create-card-token  
 https://docs.clover.com/reference/getapikey  
-
-### Bad documentation
-https://community.clover.com/questions/46643/401-attempting-to-generate-a-pakms-key.html  
-https://docs.clover.com/docs/401-unauthorized#:~:text=401%20Unauthorized%20indicates%20the%20request,credentials%20for%20the%20target%20resource  
