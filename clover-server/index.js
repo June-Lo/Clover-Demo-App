@@ -1,7 +1,5 @@
 const express = require('express');
-const { redirect } = require('react-router-dom');
 cors = require('cors');
-const crypto = require('crypto');
 import('node-fetch');
 require('dotenv').config({ path: '../.env' });
 
