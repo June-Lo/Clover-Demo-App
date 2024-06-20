@@ -21,24 +21,16 @@ const ecommercePrivateAPIKey = process.env.CLOVER_ECOMMAPIPRIVATE;
 let cardToken;
 
 app.get('/', (req, res) => {
-    res.redirect(`https://${process.env.CLOVER_SERVER}/oauth/authorize?client_id=${clientID}&merchant_id=${merchantID}&redirect_uri=http://localhost:${portProxy}/callback`);
+    res.redirect(`https://${process.env.CLOVER_SERVER}/oauth/authorize?client_id=${clientID}&merchant_id=${merchantID}&redirect_uri=http://localhost:${port}/callback`);
 });
 
-app.get('/generatePAKMSKey', (req, res) => {
-    const headersReq = req.headers;
-    const headers = { Accept: headersReq.accept, Authorization: headersReq.authorization }
-    console.log(headers);
-    fetch('https://scl-sandbox.dev.clover.com/pakms/apikey', {
-        headers
-    }).then((response) => {
-        return response.json();
-    }).then((data) => {
-        res.json(data);
-    }).catch((error) => {
-        console.error(error);
-        res.status(500).json({ error: 'An error occurred' });
-    });
-})
+app.get('/callback', (req, res) => {
+    const code = req.query.code;
+    const clientID = req.query.client_id;
+    const merchantID = req.query.merchant_id;
+    res.redirect(`http://localhost:${portProxy}/?code=${code}&client_id=${clientID}&merchant_id=${merchantID}`);
+});
+
 
 app.post('/token', (req, res) => {
     fetch(`https://${process.env.CLOVER_SERVER}/oauth/token?client_id=${req.body.client_id}&client_secret=${req.body.client_secret}&code=${req.body.code}`, {
@@ -54,16 +46,32 @@ app.post('/token', (req, res) => {
             res.json(data);
         })
         .catch((error) => {
-            console.error(error);
             res.status(500).json({ error: 'An error occurred' });
         });
 });
+
+// Doing card tokenization through Ecommerce API
+// app.get('/generatePAKMSKey', (req, res) => {
+//     fetch('https://scl-sandbox.dev.clover.com/pakms/apikey', {
+//         headers: {
+//             'Accept': 'application/json',
+//             'Authorization': req.body.Authorization
+//         }
+//     }).then((response) => {
+//         return response.json();
+//     }).then((data) => {
+//         console.log(data);
+//         res.json(data);
+//     }).catch((error) => {
+//         console.error(error);
+//         res.status(500).json({ error: 'An error occurred' });
+//     });
+// })
 
 app.post('/charge', (req, res) => {
     const { brand, number, exp_month, exp_year, cvv, last4, first6 } = req.body.card;
     const apiAccessKey = req.body.PAKMSKey;
     const accessToken = req.body.accessToken;
-    console.log(accessToken);
     const authCode = req.body.authCode;
     const cardData = {
         card: {
@@ -90,12 +98,11 @@ app.post('/charge', (req, res) => {
         })
         .then((data) => {
             cardToken = data.id;
-            console.log(cardToken);
             fetch('https://scl-sandbox.dev.clover.com/v1/charges', {
                 method: 'POST',
                 headers: {
                     'accept': 'application/json',
-                    'authorization': `Bearer ${eccommercePrivateAPIKey}`,
+                    'authorization': `Bearer ${ecommercePrivateAPIKey}`,
                     'content-type': 'application/json'
                 },
                 body: JSON.stringify({
