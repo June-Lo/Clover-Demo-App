@@ -1,7 +1,6 @@
 const express = require('express');
-cors = require('cors');
-import('node-fetch');
-require('dotenv').config({ path: '../.env' });
+const cors = require('cors');
+require('dotenv').config({ path: './.env' });
 
 const app = express();
 app.use(express.json());
@@ -9,125 +8,82 @@ app.use(cors());
 
 const port = 3000;
 const portProxy = 3001;
-const clientID = process.env.APP_ID;
-const merchantID = process.env.JUNE_MID;
-const ecommAPIPublicKey = process.env.CLOVER_ECOMMAPIPUBLIC;
-const ecommercePrivateAPIKey = process.env.CLOVER_ECOMMAPIPRIVATE;
-
-let cardToken;
+const { APP_ID: clientID, JUNE_MID: merchantID, CLOVER_ECOMMAPIPUBLIC: ecommAPIPublicKey, CLOVER_ECOMMAPIPRIVATE: ecommercePrivateAPIKey, CLOVER_SERVER: cloverServer } = process.env;
 
 app.get('/', (req, res) => {
-    res.redirect(`https://${process.env.CLOVER_SERVER}/oauth/authorize?client_id=${clientID}&merchant_id=${merchantID}&redirect_uri=http://localhost:${port}/callback`);
+  res.redirect(`https://${cloverServer}/oauth/authorize?client_id=${clientID}&merchant_id=${merchantID}&redirect_uri=http://localhost:${port}/callback`);
 });
 
 app.get('/callback', (req, res) => {
-    const code = req.query.code;
-    const clientID = req.query.client_id;
-    const merchantID = req.query.merchant_id;
-    res.redirect(`http://localhost:${portProxy}/?code=${code}&client_id=${clientID}&merchant_id=${merchantID}`);
+  const { code, client_id, merchant_id } = req.query;
+  res.redirect(`http://localhost:${portProxy}/?code=${code}&client_id=${client_id}&merchant_id=${merchant_id}`);
 });
 
-
-app.post('/token', (req, res) => {
-    fetch(`https://${process.env.CLOVER_SERVER}/oauth/token?client_id=${req.body.client_id}&client_secret=${req.body.client_secret}&code=${req.body.code}`, {
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    })
-        .then((response) => {
-            return response.json();
-        })
-        .then((data) => {
-            console.log(data);
-            res.json(data);
-        })
-        .catch((error) => {
-            res.status(500).json({ error: 'An error occurred' });
-        });
+app.post('/token', async (req, res) => {
+  try {
+    const fetch = await import('node-fetch');
+    const response = await fetch.default(`https://${cloverServer}/oauth/token?client_id=${req.body.client_id}&client_secret=${req.body.client_secret}&code=${req.body.code}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred' });
+  }
 });
 
-// Doing card tokenization through Ecommerce API
-// app.get('/generatePAKMSKey', (req, res) => {
-//     fetch('https://scl-sandbox.dev.clover.com/pakms/apikey', {
-//         headers: {
-//             'Accept': 'application/json',
-//             'Authorization': req.body.Authorization
-//         }
-//     }).then((response) => {
-//         return response.json();
-//     }).then((data) => {
-//         console.log(data);
-//         res.json(data);
-//     }).catch((error) => {
-//         console.error(error);
-//         res.status(500).json({ error: 'An error occurred' });
-//     });
-// })
-
-app.post('/charge', (req, res) => {
+app.post('/charge', async (req, res) => {
+  try {
+    const fetch = await import('node-fetch');
     const { brand, number, exp_month, exp_year, cvv, last4, first6 } = req.body.card;
-    // Doing card tokenization through Ecommerce API
-    // const apiAccessKey = req.body.PAKMSKey;
     const cardData = {
-        card: {
-            number,
-            brand,
-            exp_month,
-            exp_year,
-            cvv,
-            last4,
-            first6
-        }
+      card: {
+        number,
+        brand,
+        exp_month,
+        exp_year,
+        cvv,
+        last4,
+        first6,
+      },
     };
-    fetch('https://token-sandbox.dev.clover.com/v1/tokens', {
-        method: 'POST',
-        headers: {
-            'accept': 'application/json',
-            'apikey': ecommAPIPublicKey,
-            'content-type': 'application/json'
+    const tokenResponse = await fetch.default('https://token-sandbox.dev.clover.com/v1/tokens', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'apikey': ecommAPIPublicKey,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(cardData),
+    });
+    const tokenData = await tokenResponse.json();
+    const chargeResponse = await fetch.default('https://scl-sandbox.dev.clover.com/v1/charges', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'authorization': `Bearer ${ecommercePrivateAPIKey}`,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        ecomind: 'ecom',
+        metadata: {
+          existingDebtIndicator: false,
         },
-        body: JSON.stringify(cardData)
-    })
-        .then((response) => {
-            return response.json();
-        })
-        .then((data) => {
-            cardToken = data.id;
-            fetch('https://scl-sandbox.dev.clover.com/v1/charges', {
-                method: 'POST',
-                headers: {
-                    'accept': 'application/json',
-                    'authorization': `Bearer ${ecommercePrivateAPIKey}`,
-                    'content-type': 'application/json'
-                },
-                body: JSON.stringify({
-                    "ecomind": "ecom",
-                    "metadata": {
-                        "existingDebtIndicator": false
-                    },
-                    "amount": 1358,
-                    "tip_amount": 200,
-                    "currency": "usd",
-                    "source": cardToken
-                })
-            })
-                .then((response) => {
-                    return response.json();
-                })
-                .then((data) => {
-                    res.json(data);
-                })
-                .catch((error) => {
-                    console.error(error);
-                    res.status(500).json({ error: 'An error occurred' });
-                });
-        })
-        .catch((error) => {
-            console.error(error);
-            res.status(500).json({ error: 'An error occurred' });
-        });
+        amount: 1358,
+        tip_amount: 200,
+        currency: 'usd',
+        source: tokenData.id,
+      }),
+    });
+    const chargeData = await chargeResponse.json();
+    res.json(chargeData);
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred' });
+  }
 });
 
 app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+  console.log(`Server is running on port ${port}`);
 });
