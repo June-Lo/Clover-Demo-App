@@ -1,68 +1,70 @@
 # UFTClover
 
-# Getting Authorization
+## Setting up
+Create a Clover Dev Sandbox account  
+https://sandbox.dev.clover.com/developer-home/create-account  
+Note down the (client_id)App ID and (client_secret)App Secret  
+
+After creating, create a test merchant account, make sure to set up Ecommerce Online Payments
+https://docs.clover.com/docs/merchant-id-and-api-token-for-development  
+https://docs.clover.com/docs/creating-a-sandbox-app  
+
+After making a merchant account, you need to note down the merchant_id and create a Ecommerce API Token, this is found in settings Ecommerce tab  
+
+You should now have client_id, client_secret, merchant_id, ecommerce_public_key, ecommerce_private_key
+
+A thing to keep note is that whenever checking the Ecommerce API Keys, the private key will be changed
+
+## Getting Authorization
+First, user is redirected to, client_id must be passed as a query, merchant_id can be passed if you have a specific one to skip the merchant picking process  
+https://sandbox.dev.clover.com/oauth/authorize?client_id={APP_ID}&redirect_uri={REDIRECT_URI}   
+https://sandbox.dev.clover.com/oauth/authorize?client_id={APP_ID}&merchant_id={MERCHANT_ID}&redirect_uri={REDIRECT_URI}  
+  
+After the merchant has logged into the Clover merchant account, they're now authorized. Clover will redirect to the URI sent with  
+https://www.example.com/oauth_callback?merchant_id={MERCHANT_ID}&client_id={APP_ID}&code={AUTHORIZATION_CODE}  
+
+Relevant Documentation:  
 https://docs.clover.com/docs/merchant-dashboard-left-navigation-oauth-flow  
-First redirect to OAuth at clover  
-https://sandbox.dev.clover.com/oauth/authorize?client_id={APP_ID}  
-If the merchant_id is passed, skip the merchant picker  
-redirect to Clover Backend then redirect to site_url with legacy auth code  
 
-OR  
+## Getting the API Access Token
+The user must send their client_id(App ID), client_secret(App Secret), and code(AUTHORIZATION_CODE) to Clover Oauth2 Token endpoint  
+https://sandbox.dev.clover.com/oauth/token?client_id={APP_ID}&client_secret={APP_SECRET}&code=${AUTHORIZATION_CODE}  
+OR
+Instead of sending client_id, client_secret, and code as query params, Clover also accepts them as JSON body
 
-PKCE  
-Generate code_verifier and code_challenge  
-Redirect to OAuth  
-If the merchant_id is passed, skip the merchant picker  
-redirect to Clover Backend then redirect to site_url with v2 auth code  
+This will return a JSON file with your access_token
 
-## Setting up the Oauth2
-The user must send their APP_ID(Client id), APP_SECRET(Client Secret), and AUTHORIZATION CODE to Clover Oauth2 Token endpoint  
+Relevant Documentation:  
 https://docs.clover.com/docs/oauth-intro  
 https://docs.clover.com/docs/high-trust-app-auth-flow  
 
-A merchant who wants access to your app, but has not logged in to their Clover merchant account is an unauthorized merchant. Your app redirects the merchant to log in to their  merchant account with the URL  
-https://sandbox.dev.clover.com/oauth/authorize?client_id={APP_ID}.  
-
-When a merchant logs in to their Clover merchant account, they become an authorized merchant. The Clover server redirects this merchant to your app with the URL  
-https://www.example.com/oauth_callback?merchant_id={MERCHANT_ID}&client_id={APP_ID}&code={AUTHORIZATION_CODE}.  
-
 ## Payment
 ### PAKMS Key
-**Default OAuth Response CODE**  
-To create a charge, an Ecommerce API Token is needed.  
-After doing the OAuth, send ecommerce private key  
-```
---request GET \
-    --url https://scl-sandbox.dev.clover.com/pakms/apikey \
-    --header 'accept: application/json' \
-    --header 'authorization: Bearer <ecommerce_private_key>'  
-```
-Which will return the ecommerce public key. Or skip sending the ecommerce private key and use public key as PAKMS for Card Tokenization  
-
-OR  
-
-**Default OAuth Response Token**  
-After doing the OAuth, send access_token received to  
+**Since we are doing through the Ecommerce API Side, we can skip doing the card tokenization with the PAKMS Key and instead pass the Ecommerce API Public Key for card tokenization**  
+To get a PAKMS Key to do online payments, you need the access_token  
 ```
 --request GET \
     --url https://scl-sandbox.dev.clover.com/pakms/apikey \
     --header 'accept: application/json' \
     --header 'authorization: Bearer <access_token>'  
-```
-Which will send a response with "apiAccessKey", this is PAKMS Key for Card Tokenization  
+```  
+This will return a PAKMS Key which can be used to create a card token for payments, one-time use  
+
+Relevant Documentation:  
 https://docs.clover.com/docs/ecommerce-integration-types  
-https://docs.clover.com/docs/ecommerce-generating-a-card-token  
+
 https://docs.clover.com/reference/createcharge  
 
 ### Card Tokenization
+This is a few test cards for development  
 https://docs.clover.com/docs/test-card-numbers  
 
-Create a card token which is done at
+Creating a card tokenization, we need the PAKMS Key or the Ecommerce API Public Key, and data for the card
 ```  
 curl --request POST   
      --url https://token-sandbox.dev.clover.com/v1/tokens   
      --header 'accept: application/json'   
-     --header 'apikey: <PAKMS_Key>'   
+     --header 'apikey: <PAKMS_Key/Ecommerce_Public_Key>'   
      --header 'content-type: application/json'   
      --data '
 {  
@@ -76,7 +78,12 @@ curl --request POST
     "first6": "424242"  
   }  
 }  
-```
+```  
+
+This will return a card_token of the card that can only be one-use  
+
+Relevant Documentation:  
+https://docs.clover.com/docs/ecommerce-generating-a-card-token  
 
 ### Make a charge
 https://docs.clover.com/reference/createcharge  
