@@ -8,11 +8,9 @@ function App() {
   const [merchantID, setMerchantID] = useState(queryParams.get('merchant_id'));
   const [authCode, setAuthCode] = useState(queryParams.get('code'));
   const [accessToken, setAccessToken] = useState(localStorage.getItem('accessToken'));
-  const [PAKMSKey, setPAKMSKey] = useState('');
-
-  const merchantSID = process.env.REACT_APP_JUNEMERC_ID;
-  const ecommAPIPublicKey = process.env.REACT_APP_CLOVER_ECOMMAPIPUBLIC;
-  const ecommercePrivateAPIKey = process.env.REACT_APP_CLOVER_ECOMMAPIPRIVATE;
+  // Doing card tokenization through Ecommerce API
+  // const [PAKMSKey, setPAKMSKey] = useState('');
+  
   const clientSecret = process.env.REACT_APP_APP_SECRET;
 
   useMemo(() => {
@@ -75,7 +73,6 @@ function App() {
   // }
 
   const handleSubmit = async (event) => {
-    
     event.preventDefault();
     const creditCardNumber = event.target.creditCardNumber.value;
     const expiryDate = event.target.expiryDate.value;
@@ -94,7 +91,8 @@ function App() {
       },
       accessToken,
       authCode,
-      PAKMSKey
+      // Doing card tokenization through Ecommerce API
+      // PAKMSKey
     };
 
     try {
