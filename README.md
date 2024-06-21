@@ -59,8 +59,8 @@ https://docs.clover.com/docs/oauth-intro
 https://docs.clover.com/docs/high-trust-app-auth-flow  
 
 ## Payment
-### PAKMS Key
-**Since we are doing through the Ecommerce API Side, we can skip doing the card tokenization with the PAKMS Key and instead pass the Ecommerce API Public Key for card tokenization**  
+### PAKMS Key (Not needed since using Ecommerce API Tokens)
+**Since we are doing through the Ecommerce API Side, we can skip PAKMS Key and instead pass the Ecommerce API Public Key for card tokenization**  
 To get a PAKMS Key to do online payments, you need the access_token  
 ```
 --request GET \
