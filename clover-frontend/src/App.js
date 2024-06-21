@@ -3,31 +3,26 @@ import './App.css';
 
 function App() {
   const queryParams = new URLSearchParams(window.location.search);
-  const [clientID, setClientID] = useState(queryParams.get('client_id'));
-  const [merchantID, setMerchantID] = useState(queryParams.get('merchant_id'));
-  const [authCode, setAuthCode] = useState(queryParams.get('code'));
-  const [accessToken, setAccessToken] = useState(localStorage.getItem('accessToken'));
-  // Doing card tokenization through Ecommerce API
-  // const [PAKMSKey, setPAKMSKey] = useState('');
+  const [authData, setAuthData] = useState({
+    clientID: queryParams.get('client_id'),
+    merchantID: queryParams.get('merchant_id'),
+    authCode: queryParams.get('code'),
+    accessToken: localStorage.getItem('accessToken')
+  });
 
   const clientSecret = process.env.REACT_APP_APP_SECRET;
 
   useMemo(() => {
-    if (!authCode) {
+    if (!authData.authCode) {
       window.location.href = 'http://localhost:3000/';
     }
-  }, [authCode]);
+  }, [authData.authCode]);
 
   useEffect(() => {
-    if (authCode && accessToken === 'undefined') {
+    if (authData.authCode && authData.accessToken === 'undefined') {
       fetchToken();
     }
-
-    // Doing card tokenization through Ecommerce API
-    // if (accessToken) {
-    //   fetchPAKMSKey();
-    // }
-  }, [])
+  }, [authData.authCode, authData.accessToken]);
 
   const fetchToken = async () => {
     try {
@@ -37,38 +32,18 @@ function App() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          'client_id': clientID,
-          'client_secret': clientSecret,
-          'code': authCode,
+          client_id: authData.clientID,
+          client_secret: clientSecret,
+          code: authData.authCode,
         }),
       });
       const data = await response.json();
       localStorage.setItem('accessToken', data.access_token);
-    }
-    catch (error) {
+      setAuthData({ ...authData, accessToken: data.access_token });
+    } catch (error) {
       console.error('Error:', error);
     }
-  }
-
-  // Doing card tokenization through Ecommerce API
-  // const fetchPAKMSKey = async () => {
-  //   try {
-  //     const response = await fetch('http://localhost:3000/generatePAKMSKey', {
-  //       headers: {
-  //         Accept: 'application/json',
-  //       },
-  //       body: {
-  //         Accept: 'application/json',
-  //         Authorization: `Bearer ${accessToken}`,
-  //       }
-  //     });
-  //     const data = await response.json();
-  //     setPAKMSKey(data.apiAccessKey);
-  //   }
-  //   catch (error) {
-  //     console.error('Error:', error);
-  //   }
-  // }
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -76,7 +51,9 @@ function App() {
     const expiryDate = event.target.expiryDate.value;
     const cvv = event.target.cvv.value;
     const [expMonth, expYear] = expiryDate.split('/');
-
+    // Amex cards always start with the number 34 or 37, 
+    // Visa cards start with 4
+    // Mastercard cards start with 5.
     const body = {
       card: {
         brand: 'VISA',
@@ -87,8 +64,6 @@ function App() {
         last4: creditCardNumber.slice(-4),
         first6: creditCardNumber.slice(0, 6),
       },
-      // Doing card tokenization through Ecommerce API
-      // PAKMSKey
     };
 
     try {
@@ -101,11 +76,10 @@ function App() {
       });
       const data = await response.json();
       console.log('Success:', data);
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Error:', error);
     }
-  }
+  };
 
   return (
     <div className="App">
