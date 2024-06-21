@@ -9,6 +9,10 @@ function App() {
     authCode: queryParams.get('code'),
     accessToken: localStorage.getItem('accessToken')
   });
+  const [cardData, setCardData] = useState({
+    brand: '',
+    BIN: 0
+  });
 
   const clientSecret = process.env.REACT_APP_APP_SECRET;
 
@@ -45,18 +49,47 @@ function App() {
     }
   };
 
+  const inputChange = (event) => {
+    // Amex cards always start with the number 34 or 37
+    // Visa cards start with 4
+    // Mastercard cards start with 5
+    // Discover cards start with 6011
+
+    const visaPattern = /^(?:4[0-9]{12}(?:[0-9]{3})?)$/;
+    const mastPattern = /^(?:5[1-5][0-9]{14})$/;
+    const amexPattern = /^(?:3[47][0-9]{13})$/;
+    const discPattern = /^(?:6(?:011|5[0-9][0-9])[0-9]{12})$/; 
+
+    const isVisa = visaPattern.test( event.target.value ) === true;
+    const isMast = mastPattern.test( event.target.value ) === true;
+    const isAmex = amexPattern.test( event.target.value ) === true;
+    const isDisc = discPattern.test( event.target.value ) === true;
+
+    if (isVisa) {
+      setCardData({brand: 'VISA', BIN: 4});
+    } else if (isMast) {
+      setCardData({brand: 'MASTERCARD', BIN: 5});
+    }
+    else if (isAmex) {
+      setCardData({brand: 'AMEX', BIN: 3});
+    }
+    else if (isDisc) {
+      setCardData({brand: 'DISCOVER', BIN: 6});
+    }
+
+  }
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const creditCardNumber = event.target.creditCardNumber.value;
     const expiryDate = event.target.expiryDate.value;
     const cvv = event.target.cvv.value;
     const [expMonth, expYear] = expiryDate.split('/');
-    // Amex cards always start with the number 34 or 37, 
-    // Visa cards start with 4
-    // Mastercard cards start with 5.
+    console.log(cardData.BIN)
+    
     const body = {
       card: {
-        brand: 'VISA',
+        brand: cardData.BIN,
         number: creditCardNumber,
         exp_month: expMonth,
         exp_year: expYear,
@@ -84,9 +117,10 @@ function App() {
   return (
     <div className="App">
       <form onSubmit={handleSubmit}>
+        <h1>Card {cardData.brand}</h1>
         <label>
           Credit Card Number:
-          <input type="text" name="creditCardNumber" required />
+          <input onChange={() => inputChange} type="text" name="creditCardNumber" required />
         </label>
         <br />
         <label>

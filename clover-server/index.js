@@ -39,6 +39,7 @@ app.post('/charge', async (req, res) => {
   try {
     const fetch = await import('node-fetch');
     const { brand, number, exp_month, exp_year, cvv, last4, first6 } = req.body.card;
+   
     const cardData = {
       card: {
         number,
@@ -50,6 +51,7 @@ app.post('/charge', async (req, res) => {
         first6,
       },
     };
+    console.log(cardData)
     const tokenResponse = await fetch.default('https://token-sandbox.dev.clover.com/v1/tokens', {
       method: 'POST',
       headers: {
