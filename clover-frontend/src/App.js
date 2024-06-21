@@ -51,7 +51,9 @@ function App() {
     const expiryDate = event.target.expiryDate.value;
     const cvv = event.target.cvv.value;
     const [expMonth, expYear] = expiryDate.split('/');
-
+    // Amex cards always start with the number 34 or 37, 
+    // Visa cards start with 4
+    // Mastercard cards start with 5.
     const body = {
       card: {
         brand: 'VISA',
