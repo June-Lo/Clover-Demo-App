@@ -19,6 +19,7 @@ app.get('/callback', (req, res) => {
   res.redirect(`http://localhost:${portProxy}/?code=${code}&client_id=${client_id}&merchant_id=${merchant_id}`);
 });
 
+// This is the API access token that will be received and used for other Clover API calls
 app.post('/token', async (req, res) => {
   try {
     const fetch = await import('node-fetch');
@@ -71,8 +72,9 @@ app.post('/charge', async (req, res) => {
         metadata: {
           existingDebtIndicator: false,
         },
-        amount: 1358,
-        tip_amount: 200,
+        amount: 1358, // Item cost in cents
+        tip_amount: 200, // Tip amount in cents
+        tax_amount: 100, // Tax amount in cents
         currency: 'usd',
         source: tokenData.id,
       }),
