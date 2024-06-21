@@ -16,17 +16,18 @@ function App() {
 
   const clientSecret = process.env.REACT_APP_APP_SECRET;
 
-  useMemo(() => {
-    if (!authData.authCode) {
-      window.location.href = 'http://localhost:3000/';
-    }
-  }, [authData.authCode]);
-
-  useEffect(() => {
-    if (authData.authCode && authData.accessToken === 'undefined') {
-      fetchToken();
-    }
-  }, [authData.authCode, authData.accessToken]);
+  // Merchant Authorization, payment processing does not need OAuth Bearer and API Token
+  // useMemo(() => {
+  //   if (!authData.authCode) {
+  //     window.location.href = 'http://localhost:3000/';
+  //   }
+  // }, [authData.authCode]);
+  // 
+  // useEffect(() => {
+  //   if (authData.authCode && authData.accessToken === 'undefined') {
+  //     fetchToken();
+  //   }
+  // }, [authData.authCode, authData.accessToken]);
 
   const fetchToken = async () => {
     try {
@@ -58,23 +59,23 @@ function App() {
     const visaPattern = /^(?:4[0-9]{12}(?:[0-9]{3})?)$/;
     const mastPattern = /^(?:5[1-5][0-9]{14})$/;
     const amexPattern = /^(?:3[47][0-9]{13})$/;
-    const discPattern = /^(?:6(?:011|5[0-9][0-9])[0-9]{12})$/; 
+    const discPattern = /^(?:6(?:011|5[0-9][0-9])[0-9]{12})$/;
 
-    const isVisa = visaPattern.test( event.target.value ) === true;
-    const isMast = mastPattern.test( event.target.value ) === true;
-    const isAmex = amexPattern.test( event.target.value ) === true;
-    const isDisc = discPattern.test( event.target.value ) === true;
+    const isVisa = visaPattern.test(event.target.value) === true;
+    const isMast = mastPattern.test(event.target.value) === true;
+    const isAmex = amexPattern.test(event.target.value) === true;
+    const isDisc = discPattern.test(event.target.value) === true;
 
     if (isVisa) {
-      setCardData({brand: 'VISA', BIN: 4});
+      setCardData({ brand: 'VISA', BIN: 4 });
     } else if (isMast) {
-      setCardData({brand: 'MASTERCARD', BIN: 5});
+      setCardData({ brand: 'MASTERCARD', BIN: 5 });
     }
     else if (isAmex) {
-      setCardData({brand: 'AMEX', BIN: 3});
+      setCardData({ brand: 'AMEX', BIN: 3 });
     }
     else if (isDisc) {
-      setCardData({brand: 'DISCOVER', BIN: 6});
+      setCardData({ brand: 'DISCOVER', BIN: 6 });
     }
 
   }
@@ -86,7 +87,7 @@ function App() {
     const cvv = event.target.cvv.value;
     const [expMonth, expYear] = expiryDate.split('/');
     console.log(cardData.BIN)
-    
+
     const body = {
       card: {
         brand: cardData.BIN,

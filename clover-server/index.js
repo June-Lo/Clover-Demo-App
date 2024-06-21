@@ -10,16 +10,18 @@ const port = 3000;
 const portProxy = 3001;
 const { APP_ID: clientID, JUNE_MID: merchantID, CLOVER_ECOMMAPIPUBLIC: ecommAPIPublicKey, CLOVER_ECOMMAPIPRIVATE: ecommercePrivateAPIKey, CLOVER_SERVER: cloverServer } = process.env;
 
+// Redirect to Clover OAuth for merchant authorization code
 app.get('/', (req, res) => {
   res.redirect(`https://${cloverServer}/oauth/authorize?client_id=${clientID}&merchant_id=${merchantID}&redirect_uri=http://localhost:${port}/callback`);
 });
 
+// Callback URL front-end with merchant authorization code
 app.get('/callback', (req, res) => {
   const { code, client_id, merchant_id } = req.query;
   res.redirect(`http://localhost:${portProxy}/?code=${code}&client_id=${client_id}&merchant_id=${merchant_id}`);
 });
 
-// This is the API access token that will be received and used for other Clover API calls
+// This is the API access token that will be received and used for other Clover API calls, orders/logs/transactions
 app.post('/token', async (req, res) => {
   try {
     const fetch = await import('node-fetch');
@@ -51,7 +53,6 @@ app.post('/charge', async (req, res) => {
         first6,
       },
     };
-    console.log(cardData)
     const tokenResponse = await fetch.default('https://token-sandbox.dev.clover.com/v1/tokens', {
       method: 'POST',
       headers: {
