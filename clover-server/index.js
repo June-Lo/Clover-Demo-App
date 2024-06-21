@@ -77,6 +77,7 @@ app.post('/charge', async (req, res) => {
         tax_amount: 100, // Tax amount in cents
         currency: 'usd',
         source: tokenData.id,
+        description: 'Test Item'
       }),
     });
     const chargeData = await chargeResponse.json();
