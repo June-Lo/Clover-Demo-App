@@ -1,4 +1,24 @@
-# UFTClover
+# UFTClover Prototype
+
+## Setting up the environment
+Download Node.js  
+https://nodejs.org/en/download/prebuilt-installer  
+
+After downloading Node.js, we now need to download all the packages necessary  
+Head to ./UFTCLOVER/clover-frontend  
+Run `npm install`  
+
+We also need to download packages for the backend  
+Head to ./UFTCLOVER/clover-server  
+Run `npm install`  
+
+To start the front-end  
+Head to ./UFTCLOVER/clover-frontend  
+Run `npm start`  
+
+To start the back-end  
+Head to ./UFTCLOVER/clover-server  
+Run `node index.js`  
 
 ## Setting up
 Create a Clover Dev Sandbox account  
@@ -15,7 +35,7 @@ You should now have client_id, client_secret, merchant_id, ecommerce_public_key,
 
 A thing to keep note is that whenever checking the Ecommerce API Tokens, the private key will be changed
 
-## Getting Authorization
+## Getting Authorization (Not needed to process payments)
 First, user is redirected to, client_id must be passed as a query, merchant_id can be passed if you have a specific one to skip the merchant picking process  
 https://sandbox.dev.clover.com/oauth/authorize?client_id={APP_ID}&redirect_uri={REDIRECT_URI}   
 https://sandbox.dev.clover.com/oauth/authorize?client_id={APP_ID}&merchant_id={MERCHANT_ID}&redirect_uri={REDIRECT_URI}  
@@ -26,7 +46,7 @@ https://www.example.com/oauth_callback?merchant_id={MERCHANT_ID}&client_id={APP_
 Relevant Documentation:  
 https://docs.clover.com/docs/merchant-dashboard-left-navigation-oauth-flow  
 
-## Getting the API Access Token
+## Getting the API Access Token (Not needed to process payments)
 The user must send their client_id(App ID), client_secret(App Secret), and code(AUTHORIZATION_CODE) to Clover Oauth2 Token endpoint  
 https://sandbox.dev.clover.com/oauth/token?client_id={APP_ID}&client_secret={APP_SECRET}&code=${AUTHORIZATION_CODE}  
 OR
@@ -79,7 +99,7 @@ curl --request POST
 }  
 ```  
 
-This will return a card_token of the card that can only be one-use  
+This will return a card_token of the card that can only be **one-time use**
 
 Relevant Documentation:  
 https://docs.clover.com/docs/ecommerce-generating-a-card-token  
