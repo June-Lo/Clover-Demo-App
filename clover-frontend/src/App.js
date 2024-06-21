@@ -70,11 +70,9 @@ function App() {
       setCardData({ brand: 'VISA', BIN: 4 });
     } else if (isMast) {
       setCardData({ brand: 'MASTERCARD', BIN: 5 });
-    }
-    else if (isAmex) {
+    } else if (isAmex) {
       setCardData({ brand: 'AMEX', BIN: 3 });
-    }
-    else if (isDisc) {
+    } else if (isDisc) {
       setCardData({ brand: 'DISCOVER', BIN: 6 });
     }
 
