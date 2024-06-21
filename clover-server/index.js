@@ -79,7 +79,7 @@ app.post('/charge', async (req, res) => {
         tip_amount: 200, // Tip amount in cents
         tax_amount: 100, // Tax amount in cents
         currency: 'usd',
-        source: tokenData.id,
+        source: tokenData.id, // Card token One-Time use
         description: 'Test Item'
       }),
     });
