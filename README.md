@@ -1,4 +1,4 @@
-# UFTClover Prototype
+# Clover-Demo-App
 
 ## Setting up the environment
 Download Node.js  
