@@ -14,9 +14,9 @@ function App() {
     BIN: 0
   });
 
-  const clientSecret = process.env.REACT_APP_APP_SECRET;
-
   // Merchant Authorization, payment processing does not need OAuth Bearer and API Token
+  // 
+  // const clientSecret = process.env.REACT_APP_APP_SECRET;
   // useMemo(() => {
   //   if (!authData.authCode) {
   //     window.location.href = 'http://localhost:3000/';
@@ -28,38 +28,38 @@ function App() {
   //     fetchToken();
   //   }
   // }, [authData.authCode, authData.accessToken]);
-
-  const fetchToken = async () => {
-    try {
-      const response = await fetch('http://localhost:3000/token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          client_id: authData.clientID,
-          client_secret: clientSecret,
-          code: authData.authCode,
-        }),
-      });
-      const data = await response.json();
-      localStorage.setItem('accessToken', data.access_token);
-      setAuthData({ ...authData, accessToken: data.access_token });
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
+  // 
+  // const fetchToken = async () => {
+  //   try {
+  //     const response = await fetch('http://localhost:3000/token', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         client_id: authData.clientID,
+  //         client_secret: clientSecret,
+  //         code: authData.authCode,
+  //       }),
+  //     });
+  //     const data = await response.json();
+  //     localStorage.setItem('accessToken', data.access_token);
+  //     setAuthData({ ...authData, accessToken: data.access_token });
+  //   } catch (error) {
+  //     console.error('Error:', error);
+  //   }
+  // };
 
   const inputChange = (event) => {
     // Amex cards always start with the number 34 or 37
     // Visa cards start with 4
     // Mastercard cards start with 5
     // Discover cards start with 6011
+    const visaPattern = /^4\d*$/;
+    const mastPattern = /^5\d*$/;
+    const amexPattern = /^3[47]\d*$/;
+    const discPattern = /^6\d*$/;
 
-    const visaPattern = /^(?:4[0-9]{12}(?:[0-9]{3})?)$/;
-    const mastPattern = /^(?:5[1-5][0-9]{14})$/;
-    const amexPattern = /^(?:3[47][0-9]{13})$/;
-    const discPattern = /^(?:6(?:011|5[0-9][0-9])[0-9]{12})$/;
 
     const isVisa = visaPattern.test(event.target.value) === true;
     const isMast = mastPattern.test(event.target.value) === true;
@@ -74,6 +74,8 @@ function App() {
       setCardData({ brand: 'AMEX', BIN: 3 });
     } else if (isDisc) {
       setCardData({ brand: 'DISCOVER', BIN: 6 });
+    } else {
+      setCardData({ brand: 'UNKNOWN', BIN: 0 });
     }
 
   }
@@ -84,7 +86,7 @@ function App() {
     const expiryDate = event.target.expiryDate.value;
     const cvv = event.target.cvv.value;
     const [expMonth, expYear] = expiryDate.split('/');
-    console.log(cardData.BIN)
+
 
     const body = {
       card: {
@@ -119,7 +121,7 @@ function App() {
         <h1>Card {cardData.brand}</h1>
         <label>
           Credit Card Number:
-          <input onChange={() => inputChange} type="text" name="creditCardNumber" required />
+          <input onChange={(event) => inputChange(event)} type="text" name="creditCardNumber" required />
         </label>
         <br />
         <label>
