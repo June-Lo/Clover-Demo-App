@@ -20,6 +20,9 @@ To start the back-end
 Head to ./UFTCLOVER/clover-server  
 Run `node index.js`  
 
+Test cards to put in the input  
+https://docs.clover.com/docs/test-card-numbers#testing-tips-valid-for-all-cards  
+
 ## Setting up
 Create a Clover Dev Sandbox account  
 https://sandbox.dev.clover.com/developer-home/create-account  
@@ -78,12 +81,12 @@ https://docs.clover.com/reference/createcharge
 This is a few test cards for development  
 https://docs.clover.com/docs/test-card-numbers  
 
-Creating a card tokenization, we need the PAKMS Key or the Ecommerce API Public Key, and data for the card
+Creating a card tokenization, we need the Ecommerce API Public Key, and data for the card
 ```  
 curl --request POST   
      --url https://token-sandbox.dev.clover.com/v1/tokens   
      --header 'accept: application/json'   
-     --header 'apikey: <PAKMS_Key/Ecommerce_Public_Key>'   
+     --header 'apikey: <Ecommerce_Public_Key>'   
      --header 'content-type: application/json'   
      --data '
 {  
