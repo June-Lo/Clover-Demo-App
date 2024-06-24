@@ -15,7 +15,6 @@ function App() {
   });
 
   // Merchant Authorization, payment processing does not need OAuth Bearer and API Token
-  // 
   // const clientSecret = process.env.REACT_APP_APP_SECRET;
   // useMemo(() => {
   //   if (!authData.authCode) {
