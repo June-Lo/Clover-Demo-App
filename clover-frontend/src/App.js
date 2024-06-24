@@ -60,11 +60,10 @@ function App() {
     const amexPattern = /^3[47]\d*$/;
     const discPattern = /^6\d*$/;
 
-
-    const isVisa = visaPattern.test(event.target.value) === true;
-    const isMast = mastPattern.test(event.target.value) === true;
-    const isAmex = amexPattern.test(event.target.value) === true;
-    const isDisc = discPattern.test(event.target.value) === true;
+    const isVisa = visaPattern.test(event.target.value.replace(/\D/g, '')) === true;
+    const isMast = mastPattern.test(event.target.value.replace(/\D/g, '')) === true;
+    const isAmex = amexPattern.test(event.target.value.replace(/\D/g, '')) === true;
+    const isDisc = discPattern.test(event.target.value.replace(/\D/g, '')) === true;
 
     if (isVisa) {
       setCardData({ brand: 'VISA', BIN: 4 });
@@ -77,16 +76,14 @@ function App() {
     } else {
       setCardData({ brand: 'UNKNOWN', BIN: 0 });
     }
-
   }
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const creditCardNumber = event.target.creditCardNumber.value;
+    const creditCardNumber = event.target.creditCardNumber.value.replace(/\D/g, '');
     const expiryDate = event.target.expiryDate.value;
     const cvv = event.target.cvv.value;
     const [expMonth, expYear] = expiryDate.split('/');
-
 
     const body = {
       card: {
